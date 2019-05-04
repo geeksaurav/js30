@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+    const cities = []; // cities const for storing endpoint json
+    fetch(endpoint)
+        .then(blob => blob.json())
+        .then(data => cities.push(...data)); // fetch returns a Promise and => the blob is a raw data which on applying .json gives another promise
+        // .then(data => cities.push(data))   creates cities as [0:[100 cities], 1, 2 ...] but we need city names in cities array so use expander from ES6
+
+    // now as we have our cities data ready we can think about getting data from input and matching it here
+
+    function findMatches(inputWord, cities){
+        return cities.filter(place => {
+            // lets figure out which names matches the req input
+            // return place.city.match(/someword/i);   but its not always the case cause the search name will change so we'll use REGEx
+
+            const regex = new RegExp(inputWord, 'gi'); // 'gi' as in global and insensitive of word case[lower, upper]
+            return place.city.match(regex) || place.state.match(regex);
+         }); // either city or state
+    };
+
+    // it works ^
+
+    // function numberwithcomma(x){
+    //     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/9, ',');
+    // }
+
+        // why above one dont work but below one does, some typing shit idk
+        
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function displatMatches(){
+        const matched = findMatches(this.value, cities);
+
+        const regex = new RegExp(this.value, 'gi');
+        
+        const html = matched.map(place => {
+            const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`)
+            const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`)
+        // regex for highlighting purpsoses cause this.value is continously changing...
+            return `
+            <li>
+                <span class="name">${cityName}, ${stateName}</span>  
+                <span class="population">${numberWithCommas(place.population)}</span>
+            </li>
+            `; // no are not formatted so used this numberwithcomma function
+            // used regex to highlight.
+        }).join(''); // used join cause map returns array with , in b/w
+        suggestions.innerHTML = html;
+    }
+
+    // al data ready now let's put it in HTML ^^^
+    const searchInput = document.querySelector('.search');
+    const suggestions = document.querySelector('.suggestions');
+
+    // searchInput.addEventListener('change', displatMatches); // we want to display whenever input changes
+    searchInput.addEventListener('keyup', displatMatches); // every time a key goes up after pressing, display shit
+
+
+    </script>
+</body>
+</html>
