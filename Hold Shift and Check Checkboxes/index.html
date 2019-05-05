@@ -96,6 +96,35 @@
   </div>
 
 <script>
+
+const inputs = document.querySelectorAll('.inbox input[type="checkbox"]');
+
+let lastChecked; // gotta save last one
+
+function handleCheck(e){
+  // lets check if SHIFT key is pressed
+  //  and they are checking the box
+  let inBetween = false;
+
+  if(e.shiftKey && this.checked){
+    inputs.forEach(checkbox => {
+      // console.log(input);
+      if(checkbox === this || checkbox ===lastChecked){
+        inBetween = !inBetween; // set to false, first check sets it to true and another check sets to false...
+        // console.log("Found End-points");
+      }
+
+      if(inBetween){
+        checkbox.checked = true;
+      }
+
+      });
+  }
+  // saving the last stored one
+  lastChecked = this;
+}
+
+inputs.forEach(input => input.addEventListener('click', handleCheck));
 </script>
 </body>
 </html>
